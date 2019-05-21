@@ -42,3 +42,31 @@ fi
 #	mount -t xfs /dev/sdb1 /data1
 #fi
 
+
+# ceph repo
+
+cat > /etc/yum.repos.d/ceph.repo <<EOF
+[ceph]
+name=Ceph packages for $basearch
+baseurl=https://mirrors.aliyun.com/ceph/rpm-nautilus/el7/x86_64
+enabled=1
+priority=2
+gpgcheck=1
+gpgkey=https://mirrors.aliyun.com/ceph/keys/release.asc
+
+[ceph-noarch]
+name=Ceph noarch packages
+baseurl=https://mirrors.aliyun.com/ceph/rpm-nautilus/el7/noarch
+enabled=1
+priority=2
+gpgcheck=1
+gpgkey=https://mirrors.aliyun.com/ceph/keys/release.asc
+
+[ceph-source]
+name=Ceph source packages
+baseurl=https://mirrors.aliyun.com/ceph/rpm-nautilus/el7/SRPMS
+enabled=0
+priority=2
+gpgcheck=1
+gpgkey=https://mirrors.aliyun.com/ceph/keys/release.asc
+EOF
