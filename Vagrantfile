@@ -18,10 +18,12 @@ BOX='centos/7'
         v.name = "node-#{i}"
         v.gui = false
 
-        node_disk = "./node-#{i}/node_disk.vdi"
-        unless File.exists?(node_disk)
-        v.customize ['createhd', '--filename', node_disk, '--size', 1 * 20480]
-        v.customize ['storageattach', :id,  '--storagectl', 'IDE', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', node_disk]
+        (1..3).each do |k|
+          node_disk = "./node-#{i}/node_disk#{i}.vdi"
+          unless File.exists?(node_disk)
+          v.customize ['createhd', '--filename', node_disk, '--size', 1 * 5120]
+          v.customize ['storageattach', :id,  '--storagectl', 'IDE', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', node_disk]
+          end
         end
       end
     end
