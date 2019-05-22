@@ -71,6 +71,7 @@ gpgcheck=1
 gpgkey=https://mirrors.aliyun.com/ceph/keys/release.asc
 EOF
 
+[ ! -d /root/.ssh ] && mkdir /root/.ssh
 cat > /root/.ssh/id_rsa <<EOF
 -----BEGIN RSA PRIVATE KEY-----
 MIIEpAIBAAKCAQEA1CCKeBjXeh6vTnoT1Z1zQcTTSm7sCTFtBBJbXzOR4B6z6GQd
