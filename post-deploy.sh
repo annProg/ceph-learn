@@ -1,5 +1,4 @@
 #!/bin/bash
-exit 0
 mv /etc/yum.repos.d/* /tmp
 curl -s http://mirrors.aliyun.com/repo/Centos-7.repo -o /etc/yum.repos.d/CentOS-Base.repo
 
