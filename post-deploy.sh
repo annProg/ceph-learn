@@ -1,6 +1,20 @@
 #!/bin/bash
 mv /etc/yum.repos.d/* /tmp
+[ -f /tmp/puppet6.repo ] && mv /tmp/puppet6.repo /etc/yum.repos.d
+[ -f /tmp/elrepo.repo ] && mv /tmp/elrepo.repo /etc/yum.repos.d
 curl -s http://mirrors.aliyun.com/repo/Centos-7.repo -o /etc/yum.repos.d/CentOS-Base.repo
+
+# puppet
+#rpm -Uvh https://yum.puppet.com/puppet6-release-el-7.noarch.rpm
+#yum install -y puppetserver --enablerepo=puppet6
+
+# 使用最新内核
+rpm --import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org
+rpm -Uvh http://www.elrepo.org/elrepo-release-7.0-2.el7.elrepo.noarch.rpm
+rpm -qa |grep "kernel-ml" || yum --enablerepo=elrepo-kernel install -y kernel-ml kernel-ml-devel
+grub2-set-default 0
+sed -i 's/DEFAULTKERNEL=.*/DEFAULTKERNEL=kernel-ml/g' /etc/sysconfig/kernel
+sed -i 's/enabled=.*/enabled=1/g' /etc/yum.repos.d/elrepo.repo
 
 rm -rf /etc/localtime
 ln -s /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
@@ -23,7 +37,7 @@ echo "
 fi
 if [ -e /etc/redhat-release ]
 then
-yum install -y ntp ntpdate wget vim
+yum install -y ntp ntpdate wget vim btrfs-progs
 systemctl enable ntpd
 systemctl enable ntpdate
 systemctl stop ntpd
@@ -33,14 +47,24 @@ systemctl start ntpdate
 systemctl start ntpd
 fi
 
+declare -A DEVICE
+DEVICE=(
+	[sdb]=data1
+	[sdc]=data2
+	[sdd]=data3
+)
 
-#if [ ! -b /dev/sdb1 ];then
-#	echo -e "n\np\n\n\n\nw" |fdisk /dev/sdb
-#
-#	mkfs.xfs /dev/sdb1
-#	mkdir /data1
-#	mount -t xfs /dev/sdb1 /data1
-#fi
+for sd in ${!DEVICE[@]};do
+	if [ ! -b /dev/${sd}1 ];then
+		echo -e "\033[31m$sd ${DEVICE[$sd]}[0m"
+		echo -e "n\np\n\n\n\nw" |fdisk /dev/$sd
+
+		mkfs.btrfs /dev/${sd}1
+		directory=/${DEVICE[$sd]}
+		[ ! -d $directory ] && mkdir $directory
+		mount -t btrfs /dev/${sd}1 $directory
+	fi
+done
 
 
 # ceph repo
@@ -105,3 +129,6 @@ EOF
 cat >/root/.ssh/id_rsa.pub <<EOF
 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDUIIp4GNd6Hq9OehPVnXNBxNNKbuwJMW0EEltfM5HgHrPoZB2vAKnDLGKckesk/r+8aAW+t5NmlplvOB3P9W/JwaxDw/lrDGapR9AoAHmU7m/zEYxdSeiuxnRqJxeI0Tw8nmyOVQ9Gd3nuN8SydNuciJR4BKstvP4gFrqdm8YbPudcC62HUTXjF+SDCG4E3xhxRSLHRks32Ipjm8ofFmCdn7VCynqLdhF7VEPRU3zlaXIRvy0NZF/YahbXkvOYyJdVhakD1LrYjSyVBjBCjjq4O6TYXWaV5/Uvnt9xs77tF69XDisjrQkwHODU7/Gk4r8iGmx70gCYwGDToVH18dXP user@DESKTOP-F7JI47V
 EOF
+
+# 不是新内核时重启
+uname -r |grep "^5" || reboot

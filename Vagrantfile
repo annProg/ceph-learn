@@ -13,6 +13,9 @@ BOX='centos-sata/7'
       node.vm.synced_folder ".", "/vagrant"
       node.ssh.shell = "bash -c 'BASH_ENV=/etc/profile exec bash'"
       node.vm.provision "shell", path: "post-deploy.sh" ,run: "always"
+      #node.vm.provision "puppet",run: "always" do |puppet|
+      #  puppet.module_path = "./manifests/ceph"
+      #end
       node.vm.provider "virtualbox" do |v|
         v.customize ["modifyvm", :id, "--memory", "512"]
         v.name = "node-#{i}"
