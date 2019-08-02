@@ -1,7 +1,14 @@
 #!/bin/bash
 mv /etc/yum.repos.d/* /tmp
-[ -f /tmp/puppet6.repo ] && mv /tmp/puppet6.repo /etc/yum.repos.d
-[ -f /tmp/elrepo.repo ] && mv /tmp/elrepo.repo /etc/yum.repos.d
+
+function restoreRepo() {
+	[ -f /tmp/$1.repo ] && mv /tmp/$1.repo /etc/yum.repos.d
+}
+
+restoreRepo puppet6
+restoreRepo elrepo
+restoreRepo epel
+
 curl -s http://mirrors.aliyun.com/repo/Centos-7.repo -o /etc/yum.repos.d/CentOS-Base.repo
 
 # puppet
