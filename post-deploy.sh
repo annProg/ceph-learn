@@ -70,7 +70,7 @@ Install ntp
 # 换用国内ntp，解决 ceph mon clock skew detected 问题，国外ntp延时超过0.05s
 sed -i -r '/^server /d' /etc/ntp.conf
 cat >> /etc/ntp.conf <<EOF
-server ntp.ntsc.ac.cn iburst
+server ntp.ntsc.ac.cn iburst prefer
 server ntp.aliyun.com iburst
 server ntp2.aliyun.com iburst
 server ntp3.aliyun.com iburst
