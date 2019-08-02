@@ -35,6 +35,10 @@ echo "
 ######################################################
 " >> /etc/hosts
 fi
+
+# Note 主机名应该解析为网络 IP 地址，而非回环接口 IP 地址（即主机名应该解析成非 127.0.0.1 的IP地址）。如果你的管理节点同时也是一个 Ceph 节点，也要确认它能正确解析自己的主机名和 IP 地址（即非回环 IP 地址）。
+sed -i '/^127.0.0.1.*node/d' /etc/hosts
+
 if [ -e /etc/redhat-release ]
 then
 yum install -y ntp ntpdate wget vim btrfs-progs
@@ -126,6 +130,7 @@ pjgYKILtOo/cNxgbp45bICuzNyqPeZktjtZWcSz6t5e6YQD5j9m2Dw==
 -----END RSA PRIVATE KEY-----
 EOF
 
+chmod 600 /root/.ssh/id_rsa
 cat >/root/.ssh/id_rsa.pub <<EOF
 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDUIIp4GNd6Hq9OehPVnXNBxNNKbuwJMW0EEltfM5HgHrPoZB2vAKnDLGKckesk/r+8aAW+t5NmlplvOB3P9W/JwaxDw/lrDGapR9AoAHmU7m/zEYxdSeiuxnRqJxeI0Tw8nmyOVQ9Gd3nuN8SydNuciJR4BKstvP4gFrqdm8YbPudcC62HUTXjF+SDCG4E3xhxRSLHRks32Ipjm8ofFmCdn7VCynqLdhF7VEPRU3zlaXIRvy0NZF/YahbXkvOYyJdVhakD1LrYjSyVBjBCjjq4O6TYXWaV5/Uvnt9xs77tF69XDisjrQkwHODU7/Gk4r8iGmx70gCYwGDToVH18dXP user@DESKTOP-F7JI47V
 EOF
@@ -136,3 +141,12 @@ uname -r |grep "^5" || reboot
 # 允许密码登录
 sed -i 's/^PasswordAuthentication.*/PasswordAuthentication yes/g' /etc/ssh/sshd_config
 systemctl restart sshd
+
+# 在 CentOS 和 RHEL 上， SELinux 默认为 Enforcing 开启状态。为简化安装，我们建议把 SELinux 设置为 Permissive 或者完全禁用，也就是在加固系统配置前先确保集群的安装、配置没问题。用下列命令把 SELinux 设置为 Permissive 
+sed -i 's/^SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
+
+# 确保你的包管理器安装了优先级/首选项包且已启用。在 CentOS 上你也许得安装 EPEL ，在 RHEL 上你也许得启用可选软件库。
+yum install -y yum-plugin-priorities epel-release
+
+# 解决 ceph-deploy 报错：ImportError: No module named pkg_resources
+yum install -y python2-pip

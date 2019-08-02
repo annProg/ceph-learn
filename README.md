@@ -1,18 +1,18 @@
 # ceph-learn
 learn ceph
 
-## 自制支持SATA控制器的box
+## 自制支持 SATA 控制器的 box
 
-基于centos/7 启动一个vm
+基于 centos/7 启动一个 vm
 
 ```
 vagrant init centos/7
 vagrant up
 ```
 
-修复keypair
+修复 keypair
 
-制作box时禁止insert_key，添加 config.ssh.insert_key = false，否则会报 `Authentication failure. Retrying...`
+制作 box 时禁止 insert_key，添加 config.ssh.insert_key = false，否则会报 `Authentication failure. Retrying...`
 
 ```
 Vagrant.configure("2") do |config|
@@ -27,13 +27,12 @@ end
 - https://blog.csdn.net/qq_27068845/article/details/80936081
 - https://www.vagrantup.com/docs/boxes/base.html#quot-vagrant-quot-user
 
-
-关机，在virtualbox 图形界面添加SATA控制器。执行以下命令导出box
+关机，在 virtualbox 图形界面添加 SATA 控制器。执行以下命令导出 box
 
 ```
  vagrant.exe package
 ```
-Vagrant将创建名为package.box的新的box，此后我们便可以使用该package.box作为其他虚拟机的基础box了。另外，如果当前处于Vagrantfile文件所在目录，则可简化创建命令：
+Vagrant 将创建名为 package.box 的新的 box，此后我们便可以使用该 package.box 作为其他虚拟机的基础 box 了。另外，如果当前处于 Vagrantfile 文件所在目录，则可简化创建命令：
 
 ```
 vagrant package
@@ -63,9 +62,24 @@ Vagrant box. For context, the command attempted was:
 ```
 
 ## 管理硬盘
-直接删除硬盘文件，会报错：VERR_ALREADY_EXISTS，需通过VBOXmanage删除
+直接删除硬盘文件，会报错：VERR_ALREADY_EXISTS，需通过 VBOXmanage 删除
 
 ```
 VBoxManage.exe list hdds
 VBoxManage.exe closemedium disk /e/dev/ceph-learn/node-2/node_disk1.vdi --delete
+```
+
+## ceph-deploy
+
+指定国内 repo
+
+```
+ceph-deploy install --repo-url https://mirrors.aliyun.com/ceph/rpm-nautilus/el7 --gpg-url https://mirrors.aliyun.com/ceph/keys/release.asc node-1
+```
+
+重新创建 osd
+
+```
+# lvremove 
+# vgremove ceph ...
 ```
