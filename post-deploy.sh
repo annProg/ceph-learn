@@ -132,3 +132,7 @@ EOF
 
 # 不是新内核时重启
 uname -r |grep "^5" || reboot
+
+# 允许密码登录
+sed -i 's/^PasswordAuthentication.*/PasswordAuthentication yes/g' /etc/ssh/sshd_config
+systemctl restart sshd
