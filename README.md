@@ -61,6 +61,14 @@ guest. This is not a bug in Vagrant and is usually caused by a faulty
 Vagrant box. For context, the command attempted was:
 ```
 
+vagrant-vbguest 不支持 kernel-ml 内核，临时解决方案，编辑 `.vagrant.d\gems\2.4.6\gems\vagrant-vbguest-0.19.0\lib\vagrant-vbguest\installers`，将 install 命令改为
+
+```
+cmd = "yum install -y kernel-ml-devel-`uname -r` --enablerepo=C#{rel}-base --enablerepo=C#{rel}-updates"
+```
+
+相关 issue：https://github.com/dotless-de/vagrant-vbguest/issues/325  不知道为什么被标记成 wontfix
+
 ## 管理硬盘
 直接删除硬盘文件，会报错：VERR_ALREADY_EXISTS，需通过 VBOXmanage 删除
 
