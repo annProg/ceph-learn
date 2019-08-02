@@ -64,7 +64,7 @@ Vagrant box. For context, the command attempted was:
 vagrant-vbguest 不支持 kernel-ml 内核，临时解决方案，编辑 `.vagrant.d\gems\2.4.6\gems\vagrant-vbguest-0.19.0\lib\vagrant-vbguest\installers`，将 install 命令改为
 
 ```
-cmd = "yum install -y kernel-ml-devel-`uname -r` --enablerepo=C#{rel}-base --enablerepo=C#{rel}-updates"
+@has_kernel_devel_info = communicate.test('test -e /usr/src/kernels/`uname -r`', sudo: true)
 ```
 
 相关 issue：https://github.com/dotless-de/vagrant-vbguest/issues/325  不知道为什么被标记成 wontfix
