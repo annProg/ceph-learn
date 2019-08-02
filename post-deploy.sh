@@ -68,8 +68,14 @@ Install ntpdate
 Install ntp
 
 # 换用国内ntp，解决 ceph mon clock skew detected 问题，国外ntp延时超过0.05s
-sed -i -r 's/^server ([1-9]).*/server ntp\1.aliyun.com iburst/g' /etc/ntp.conf
-sed -i -r 's/^server 0.*/server ntp.aliyun.com iburst/g' /etc/ntp.conf
+sed -i -r '/^server /d' /etc/ntp.conf
+cat >> /etc/ntp.conf <<EOF
+server ntp.ntsc.ac.cn iburst
+server ntp.aliyun.com iburst
+server ntp2.aliyun.com iburst
+server ntp3.aliyun.com iburst
+server ntp4.aliyun.com iburst
+EOF
 
 systemctl enable ntpd
 systemctl enable ntpdate
