@@ -81,7 +81,7 @@ systemctl enable ntpd
 systemctl enable ntpdate
 systemctl stop ntpd
 systemctl stop ntpdate
-ntpdate 0.centos.pool.ntp.org > /dev/null 2> /dev/null
+ntpdate ntp.ntsc.ac.cn > /dev/null 2> /dev/null
 systemctl start ntpdate
 systemctl start ntpd
 
