@@ -17,7 +17,7 @@ BOX='centos-sata/7'
       #  puppet.module_path = "./manifests/ceph"
       #end
       node.vm.provider "virtualbox" do |v|
-        v.customize ["modifyvm", :id, "--memory", "512"]
+        v.customize ["modifyvm", :id, "--memory", "1024"]
         v.name = "node-#{i}"
         v.gui = false
 
