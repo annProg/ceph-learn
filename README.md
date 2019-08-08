@@ -77,6 +77,15 @@ An error occurred during installation of VirtualBox Guest Additions 6.0.4. Some 
 see: https://www.virtualbox.org/ticket/18515
 升级 virtualbox 到最新版。
 
+### 不安装 VirtualBox Guest Additions
+
+```
+node.vm.synced_folder ".", "/vagrant", disabled: true
+if Vagrant.has_plugin?("vagrant-vbguest")
+  node.vbguest.auto_update = false
+end
+```
+
 ## 管理硬盘
 直接删除硬盘文件，会报错：VERR_ALREADY_EXISTS，需通过 VBOXmanage 删除
 

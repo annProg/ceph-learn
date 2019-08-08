@@ -7,7 +7,7 @@ function restoreRepo() {
 }
 
 function Install() {
-	rpm -qa |grep $1 || yum install -y $1
+	rpm -qi $1 || yum install -y $1
 }
 
 # 恢复被移走的repo
@@ -50,11 +50,11 @@ then
 echo "
 ################ cookbook host entry ############
 
-192.168.1.101 node-1
-192.168.1.102 node-2
-192.168.1.103 node-3
-192.168.1.104 node-4
-192.168.1.105 node-5
+192.168.1.101 node1
+192.168.1.102 node2
+192.168.1.103 node3
+192.168.1.104 node4
+192.168.1.105 node5
 
 ######################################################
 " >> /etc/hosts
@@ -98,12 +98,21 @@ for sd in ${!DEVICE[@]};do
 	if [ ! -b /dev/${sd}1 ];then
 		echo -e "\033[31m$sd ${DEVICE[$sd]}[0m"
 		echo -e "n\np\n\n\n\nw" |fdisk /dev/$sd
-
 		mkfs.btrfs /dev/${sd}1
-		directory=/${DEVICE[$sd]}
-		[ ! -d $directory ] && mkdir $directory
+	fi
+	directory=/ceph/${DEVICE[$sd]}
+	[ ! -d $directory ] && mkdir -p $directory
+
+	# 挂载点未挂载时不允许写入
+	mountpoint -q $directory
+	if [ $? -eq 0 ];then
+		echo "$directory mounted"
+	else
+		chattr +i $directory
 		mount -t btrfs /dev/${sd}1 $directory
 	fi
+	# fstab
+	grep "^/dev/${sd}1" || echo "/dev/${sd}1 $directory btrfs defaults 0 0" >> /etc/fstab
 done
 
 
@@ -144,14 +153,17 @@ sed -i 's/^SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
 # 互相ssh
 su -c 'cat /dev/zero |ssh-keygen -q -N ""' vagrant
 Install sshpass
+Install nmap-ncat
 for node in `seq 1 3`;do
-	su -c "sshpass -p vagrant ssh-copy-id vagrant@node-${node} -o StrictHostKeyChecking=no" vagrant
+	nc -z node${node} 22 && \
+	su -c "sshpass -p vagrant ssh-copy-id vagrant@node${node} -o StrictHostKeyChecking=no" vagrant
 done
 
 # root 互相ssh
 cat /dev/zero |ssh-keygen -q -N ""
 for node in `seq 1 3`;do
-	sshpass -p vagrant ssh-copy-id node-${node} -o StrictHostKeyChecking=no
+	nc -z node${node} 22 && \
+	sshpass -p vagrant ssh-copy-id node${node} -o StrictHostKeyChecking=no
 done
 
 # 不是新内核时重启
