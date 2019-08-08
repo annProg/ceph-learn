@@ -43,6 +43,7 @@ sed -i 's/DEFAULTKERNEL=.*/DEFAULTKERNEL=kernel-ml/g' /etc/sysconfig/kernel
 rm -rf /etc/localtime
 ln -s /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 
+hostpre="ceph"
 # 主机名解析
 value=$( grep -ic "entry" /etc/hosts )
 if [ $value -eq 0 ]
@@ -50,18 +51,18 @@ then
 echo "
 ################ cookbook host entry ############
 
-192.168.1.101 node1
-192.168.1.102 node2
-192.168.1.103 node3
-192.168.1.104 node4
-192.168.1.105 node5
+192.168.1.101 ${hostpre}1
+192.168.1.102 ${hostpre}2
+192.168.1.103 ${hostpre}3
+192.168.1.104 ${hostpre}4
+192.168.1.105 ${hostpre}5
 
 ######################################################
 " >> /etc/hosts
 fi
 
 # Note 主机名应该解析为网络 IP 地址，而非回环接口 IP 地址（即主机名应该解析成非 127.0.0.1 的IP地址）。如果你的管理节点同时也是一个 Ceph 节点，也要确认它能正确解析自己的主机名和 IP 地址（即非回环 IP 地址）。
-sed -i '/^127.0.0.1.*node/d' /etc/hosts
+sed -i "/^127.0.0.1.*${hostpre}/d" /etc/hosts
 
 # ntp. ceph mon 节点需要时间同步
 Install ntpdate
@@ -155,15 +156,15 @@ su -c 'cat /dev/zero |ssh-keygen -q -N ""' vagrant
 Install sshpass
 Install nmap-ncat
 for node in `seq 1 3`;do
-	nc -z node${node} 22 && \
-	su -c "sshpass -p vagrant ssh-copy-id vagrant@node${node} -o StrictHostKeyChecking=no" vagrant
+	nc -z ${hostpre}${node} 22 && \
+	su -c "sshpass -p vagrant ssh-copy-id vagrant@${hostpre}${node} -o StrictHostKeyChecking=no" vagrant
 done
 
 # root 互相ssh
 cat /dev/zero |ssh-keygen -q -N ""
 for node in `seq 1 3`;do
-	nc -z node${node} 22 && \
-	sshpass -p vagrant ssh-copy-id node${node} -o StrictHostKeyChecking=no
+	nc -z ${hostpre}${node} 22 && \
+	sshpass -p vagrant ssh-copy-id ${hostpre}${node} -o StrictHostKeyChecking=no
 done
 
 # 不是新内核时重启
