@@ -113,7 +113,7 @@ for sd in ${!DEVICE[@]};do
 		mount -t btrfs /dev/${sd}1 $directory
 	fi
 	# fstab
-	grep "^/dev/${sd}1" || echo "/dev/${sd}1 $directory btrfs defaults 0 0" >> /etc/fstab
+	grep "^/dev/${sd}1" /etc/fstab || echo "/dev/${sd}1 $directory btrfs defaults 0 0" >> /etc/fstab
 done
 
 
