@@ -25,6 +25,13 @@ Install yum-plugin-priorities
 # 解决 ceph-deploy 报错：ImportError: No module named pkg_resources
 Install python2-pip
 
+# Install pre-requisite packages
+Install snappy 
+Install leveldb
+Install gdisk
+Install python-argparse
+Install gperftools-libs
+
 # puppet
 #rpm -Uvh https://yum.puppet.com/puppet6-release-el-7.noarch.rpm
 #yum Install -y puppetserver --enablerepo=puppet6
@@ -86,37 +93,6 @@ ntpdate ntp.ntsc.ac.cn > /dev/null 2> /dev/null
 systemctl start ntpdate
 systemctl start ntpd
 
-
-# 格式化磁盘
-declare -A DEVICE
-DEVICE=(
-	[sdb]=data1
-	[sdc]=data2
-	[sdd]=data3
-)
-
-for sd in ${!DEVICE[@]};do
-	if [ ! -b /dev/${sd}1 ];then
-		echo -e "\033[31m$sd ${DEVICE[$sd]}[0m"
-		echo -e "n\np\n\n\n\nw" |fdisk /dev/$sd
-		mkfs.btrfs /dev/${sd}1
-	fi
-	directory=/ceph/${DEVICE[$sd]}
-	[ ! -d $directory ] && mkdir -p $directory
-
-	# 挂载点未挂载时不允许写入
-	mountpoint -q $directory
-	if [ $? -eq 0 ];then
-		echo "$directory mounted"
-	else
-		chattr +i $directory
-		mount -t btrfs /dev/${sd}1 $directory
-	fi
-	# fstab
-	grep "^/dev/${sd}1" /etc/fstab || echo "/dev/${sd}1 $directory btrfs defaults 0 0" >> /etc/fstab
-done
-
-
 # ceph repo
 cat > /etc/yum.repos.d/ceph.repo <<EOF
 [ceph]
@@ -169,3 +145,6 @@ done
 
 # 不是新内核时重启
 uname -r |grep "^5" || reboot
+
+# Install ceph
+Install ceph
