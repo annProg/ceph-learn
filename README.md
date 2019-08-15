@@ -96,11 +96,18 @@ VBoxManage.exe closemedium disk /e/dev/ceph-learn/node-2/node_disk1.vdi --delete
 
 ## ceph-deploy
 
-指定国内 repo
+指定国内 repo 或者使用 `--no-adjust-repos` 参数不修改repo，直接使用`/etc/yum.repos.d/ceph.repo`。
 
 ```
 ceph-deploy install --repo-url https://mirrors.aliyun.com/ceph/rpm-nautilus/el7 --gpg-url https://mirrors.aliyun.com/ceph/keys/release.asc node-1
 ```
+
+```bash
+# ceph-deploy install --help
+...
+--no-adjust-repos     install packages without modifying source repos
+```
+
 
 重新创建 osd
 
