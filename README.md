@@ -3,6 +3,21 @@ learn ceph
 
 ## 自制支持 SATA 控制器的 box
 
+UPDATE: 无需自制 box，通过配置 新增 SATA 即可. 参考: https://stackoverflow.com/questions/21574260/change-default-disk-controller-in-vagrant
+
+```
+        (1..3).each do |k|
+          node_disk = "./itop-mgr-#{i}/node_disk#{k}.vdi"
+          unless File.exists?(node_disk)
+            v.customize ['createhd', '--filename', node_disk, '--size', 1 * 5120]
+          end
+		  #v.customize ["storagectl", :id, "--name", "IDE", "--remove"]
+		  v.customize ["storagectl", :id, "--name", "SATA", "--add", "sata"]
+          v.customize ['storageattach', :id,  '--storagectl', 'SATA', '--port', "#{k}", '--device', 0, '--type', 'hdd', '--medium', node_disk]
+        end
+```
+
+
 基于 centos/7 启动一个 vm
 
 ```
